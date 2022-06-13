@@ -27,7 +27,7 @@ app.all('/api/auth/*', (req, res, next) => {
 })
 
 app.use(async (req, res, next) => {
-    const validateTokenUrl = 'auth-server:3020/api/auth/validatetoken'
+    const validateTokenUrl = 'http://auth-server:3020/api/auth/validatetoken'
     const config = {
         headers: {
             Authorization: req.headers.authorization
@@ -35,7 +35,10 @@ app.use(async (req, res, next) => {
     }
     axios.get(validateTokenUrl, config)
         .then(() => next())
-        .catch(() => next(createError(401)));
+        .catch(err => {
+            console.log(err)
+            next(createError(401))
+        });
 })
 
 app.use('/api/users', usersRouter);
