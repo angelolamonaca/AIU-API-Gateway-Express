@@ -10,7 +10,7 @@ const httpProxy = require("express-http-proxy");
 const axios = require("axios");
 
 const app = express();
-const authServiceProxy = httpProxy('http://localhost:3020')
+const authServiceProxy = httpProxy('auth-server:3020')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,7 +27,7 @@ app.all('/api/auth/*', (req, res, next) => {
 })
 
 app.use(async (req, res, next) => {
-    const validateTokenUrl = 'http://localhost:3020/api/auth/validatetoken'
+    const validateTokenUrl = 'auth-server:3020/api/auth/validatetoken'
     const config = {
         headers: {
             Authorization: req.headers.authorization
