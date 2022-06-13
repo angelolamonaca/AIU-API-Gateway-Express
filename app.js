@@ -7,6 +7,7 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const httpProxy = require("express-http-proxy");
+const axios = require("axios");
 
 const app = express();
 const authServiceProxy = httpProxy('http://localhost:3020')
@@ -21,16 +22,22 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Authentication
-
 app.all('/api/auth/*', (req, res, next) => {
     authServiceProxy(req, res, next)
 })
 
-app.use((req, res, next) => {
-    console.log(' OK')
-    next()
+app.use(async (req, res, next) => {
+    const validateTokenUrl = 'http://localhost:3020/api/auth/validatetoken'
+    const config = {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }
+    axios.get(validateTokenUrl, config)
+        .then(() => next())
+        .catch(() => next(createError(401)));
 })
+
 app.use('/api/users', usersRouter);
 app.use('/', indexRouter);
 
