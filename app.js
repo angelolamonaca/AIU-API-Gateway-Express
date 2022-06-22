@@ -27,10 +27,6 @@ app.all('/api/auth/*', (req, res, next) => {
     authServiceProxy(req, res, next)
 })
 
-app.all('/api/wallet/*', (req, res, next) => {
-    walletServiceProxy(req, res, next)
-})
-
 app.use(async (req, res, next) => {
     const validateTokenUrl = 'http://auth-server:3020/api/auth/validatetoken'
     const config = {
@@ -39,11 +35,27 @@ app.use(async (req, res, next) => {
         }
     }
     axios.get(validateTokenUrl, config)
-        .then(() => next())
+        .then((r) => {
+            req.email = r.headers.email
+            next()
+        })
         .catch(err => {
             console.log(err)
             next(createError(401))
         });
+})
+
+app.all('/api/wallet', (req, res, next) => {
+    req.path += `/${req.email}`
+    req.url += `/${req.email}`
+    req.originalUrl += `/${req.email}`
+    req.route.path += `/${req.email}`
+    walletServiceProxy(req, res, next)
+})
+
+app.all('/api/wallet/createwallet/*', (req, res, next) => {
+    if (req.body.email !== req.email) next(createError(401))
+    walletServiceProxy(req, res, next)
 })
 
 app.use('/api/users', usersRouter);
