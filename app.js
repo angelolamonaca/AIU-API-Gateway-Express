@@ -54,7 +54,10 @@ app.all('/api/wallet', (req, res, next) => {
 })
 
 app.all('/api/wallet/createwallet/*', (req, res, next) => {
-    if (req.body.email !== req.email) next(createError(401))
+    req.body = {
+        ...req.body,
+        email: req.email,
+    }
     walletServiceProxy(req, res, next)
 })
 
