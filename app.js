@@ -11,6 +11,7 @@ const axios = require("axios");
 
 const app = express();
 const authServiceProxy = httpProxy('auth-server:3020')
+const walletServiceProxy = httpProxy('wallet-server:3030')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +25,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.all('/api/auth/*', (req, res, next) => {
     authServiceProxy(req, res, next)
+})
+
+app.all('/api/wallet/*', (req, res, next) => {
+    walletServiceProxy(req, res, next)
 })
 
 app.use(async (req, res, next) => {
